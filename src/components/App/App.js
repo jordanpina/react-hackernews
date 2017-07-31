@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 import './App.css';
-import Search from './Search'
-import Table from './Table'
-import Button from './Button'
+import 'font-awesome/css/font-awesome.css';
+import Search from '../Search/Search.js';
+import Table from '../Table/Table';
+import Button from '../Button/Button';
+import {
+  DEFAULT_QUERY,
+  DEFAULT_PAGE,
+  DEFAULT_HPP,
+  PATH_BASE,
+  PATH_SEARCH,
+  PARAM_SEARCH,
+  PARAM_PAGE,
+  PARAM_HPP,
+} from '../../constants/constants.js';
 
-const DEFAULT_QUERY = 'redux';
-const DEFAULT_PAGE = 0;
-const DEFAULT_HPP = '100';
-const PATH_BASE = 'https://hn.algolia.com/api/v1';
-const PATH_SEARCH = '/search';
-const PARAM_SEARCH = 'query=';
-const PARAM_PAGE = 'page=';
-const PARAM_HPP = 'hitsPerPage=';
+
 
 class App extends Component {
   constructor(props) {
@@ -20,6 +24,7 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
+      isLoading: false,
     };
     this.needsToSearchTopstories = this.needsToSearchTopstories.bind(this);
     this.setSearchTopstories = this.setSearchTopstories.bind(this);
@@ -29,8 +34,8 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
   }
   needsToSearchTopstories(searchTerm) {
-return !this.state.results[searchTerm];
-}
+    return !this.state.results[searchTerm];
+  }
   componentDidMount() {
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
@@ -41,13 +46,14 @@ return !this.state.results[searchTerm];
     this.setState({ searchKey: searchTerm });
 
     if (this.needsToSearchTopstories(searchTerm)) {
-this.fetchSearchTopstories(searchTerm, DEFAULT_PAGE);
-}
+      this.fetchSearchTopstories(searchTerm, DEFAULT_PAGE);
+    }
     event.preventDefault();
   }
 
   //Grab API data
   fetchSearchTopstories(searchTerm, page) {
+    this.setState({ isLoading: true })
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
       .then(response => response.json())
       .then(result => this.setSearchTopstories(result))
@@ -69,8 +75,10 @@ this.fetchSearchTopstories(searchTerm, DEFAULT_PAGE);
       results: {
         ...results,
         [searchKey]: { hits: updatedHits, page }
-      }
+      },
+      isLoading: false
     });
+
   }
 
   onDismiss(id) {
@@ -90,14 +98,12 @@ this.fetchSearchTopstories(searchTerm, DEFAULT_PAGE);
     this.setState({ searchTerm: event.target.value })
   }
 
-
-
-
   render() {
     const {
 searchTerm,
       results,
-      searchKey
+      searchKey,
+      isLoading
 } = this.state;
     const page = (
       results &&
@@ -126,13 +132,24 @@ searchTerm,
           onDismiss={this.onDismiss}
         />
         <div className="interactions">
-          <Button onClick={() => this.fetchSearchTopstories(searchKey, page + 1)}>
-            More
-          </Button>
+          {isLoading
+            ? <Loading />
+            : <Button
+              onClick={() => this.fetchSearchTopstories(searchKey, page + 1)}>
+              More
+            </Button>
+          }
         </div>
       </div >
     );
   }
+}
+
+const Loading =()=>{
+  return(
+      <div><i className="fa fa-star"></i></div>
+  )
+  
 }
 
 

@@ -1,14 +1,15 @@
 import React from 'react'
-import Button from './Button'
+import Button from '../Button/Button'
+import PropTypes from 'prop-types'
 
 const largeColumn = {
-width: '40%',
+  width: '40%',
 };
 const midColumn = {
-width: '30%',
+  width: '30%',
 };
 const smallColumn = {
-width: '10%',
+  width: '10%',
 };
 
 const Table = ({ list, onDismiss }) =>
@@ -38,5 +39,18 @@ const Table = ({ list, onDismiss }) =>
       </div>
     )}
   </div>
+
+Table.propTypes = {
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+      objectID: PropTypes.string.isRequired,
+      author: PropTypes.string,
+      url: PropTypes.string,
+      num_comments: PropTypes.number,
+      points: PropTypes.number,
+    })
+  ).isRequired,
+  onDismiss: PropTypes.func,
+};
 
 export default Table; 
